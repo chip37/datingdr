@@ -2,6 +2,8 @@ import OpenAI from "openai";
 
 export async function POST(req: Request) {
   try {
+    console.log("KEY EXISTS:", !!process.env.OPENAI_API_KEY);
+    
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
