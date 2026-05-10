@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -44,11 +44,13 @@ Suggest likely root causes.
     return Response.json({
       reply: completion.choices[0].message.content,
     });
+
   } catch (error) {
     console.error(error);
 
-    return Response.json({
-      error: "Something broke",
-    });
+    return Response.json(
+      { error: "Something broke" },
+      { status: 500 }
+    );
   }
 }
