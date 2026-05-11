@@ -32,7 +32,7 @@ export default function Home() {
         fontFamily: "monospace",
       }}
     >
-      <h1>AI Portal</h1>
+      <h1>AI Portal Online</h1>
 
       <input
         value={message}
