@@ -1,21 +1,10 @@
-import OpenAI from "openai";
+import { generateAIResponse } from "@/lib/ai";
 
 export async function POST(req: Request) {
   try {
-    console.log("KEY EXISTS:", !!process.env.OPENAI_API_KEY);
-    
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
     const body = await req.json();
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `
+    const prompt = `
 You are an expert Hanke crimp machine technician.
 
 You help diagnose:
@@ -30,29 +19,54 @@ You help diagnose:
 - pneumatic issues
 - maintenance concerns
 
-Give concise troubleshooting steps.
-Prioritize safety.
-Ask clarifying questions if needed.
-Suggest likely root causes.
-`,
-        },
-        {
-          role: "user",
-          content: body.message,
-        },
-      ],
-    });
+Always:
+- reason step-by-step
+- prioritize safety
+- recommend diagnostic tests before part replacement
+- explain WHY the failure is likely
+- avoid vague answers
+- keep responses concise but detailed
+
+Format every response EXACTLY using this structure:
+
+LIKELY CAUSE
+- List the most probable causes in order of likelihood
+
+RECOMMENDED TESTS
+- Give practical diagnostic steps
+
+SAFETY WARNING
+- Mention any dangerous conditions
+
+MOST COMMON FAILURE POINT
+- Identify the highest probability component
+
+NEXT DIAGNOSTIC STEP
+- Tell the technician what to do next immediately
+
+Machine Model:
+${body.machineModel}
+
+Machine Problem:
+${body.message}
+`;
+
+    const reply = await generateAIResponse(prompt);
 
     return Response.json({
-      reply: completion.choices[0].message.content,
+      reply,
     });
 
   } catch (error) {
     console.error(error);
 
     return Response.json(
-      { error: "Something broke" },
-      { status: 500 }
+  {
+    error: String(error),
+  },
+      {
+        status: 500,
+      }
     );
   }
 }
